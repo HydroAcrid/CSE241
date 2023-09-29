@@ -54,7 +54,7 @@ public class capacity {
                     break; 
                 }
 
-            } catch(Exception e) {
+            } catch(InputMismatchException e) {
                 System.out.println("Invalid input. Please enter a valid year or 0 to exit.");
                 scnr.nextLine(); // Clear the scanner buffer
             }
