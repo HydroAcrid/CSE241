@@ -48,6 +48,13 @@ public class capacity {
                 System.out.println("Year(yyyy) or 0 to exit: ");
                 section = scnr.nextInt();
 
+                //Check if the year exists 
+                if(!yearExists(connection, section)) {
+                    System.out.println("Year not in database.");
+                }
+
+
+
                 //If they press 0
                 if(section == 0) {
                     System.out.println("Exiting...");
@@ -62,8 +69,27 @@ public class capacity {
         
 
 
-
-        
     }
+
+
+    //Function to check if the year exists 
+    public static boolean yearExists(Connection conn, int year) {
+        String query = "SELECT COUNT(*) FROM section WHERE year = ?";
+        
+        try(PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, year);
+            ResultSet rs = stmt.executeQuery();
+
+            if(rs.next()) {
+                int count = rs.getInt(1);
+                return count > 0; //will return true of false depending on the num of years
+            }
+        } catch(SQLException se) {
+            se.printStackTrace();
+        }
+        return false;
+    }
+
+
 }
 
