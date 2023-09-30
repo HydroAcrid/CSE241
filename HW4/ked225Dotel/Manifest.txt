@@ -1,0 +1,2 @@
+Main-Class: capacity
+Class-Path: lib/ojdbc11.jar
