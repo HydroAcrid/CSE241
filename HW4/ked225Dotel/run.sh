@@ -7,6 +7,6 @@ if ! command -v java &> /dev/null; then
 fi
 
 # Run the Java program with the appropriate classpath
-java -cp .:lib/ojdbc8.jar capacity.java
+java -cp .:lib/ojdbc8.jar capacity
 
 # Note: Replace 'YourMainClass' with the actual name of your main class.
