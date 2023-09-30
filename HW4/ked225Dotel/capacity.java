@@ -111,6 +111,8 @@ public class capacity {
             }
 
         } while(!valid);
+
+        scnr.close();
         
     }
 
