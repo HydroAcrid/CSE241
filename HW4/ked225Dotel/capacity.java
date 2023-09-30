@@ -55,7 +55,7 @@ public class capacity {
                 if(section == 0) {
                     System.out.println("Exiting...");
                     try {
-                        connection.close();
+                        connection.close(); //Close connection once you exit the program 
                     } catch (SQLException se) {
                         se.printStackTrace();
                     }
