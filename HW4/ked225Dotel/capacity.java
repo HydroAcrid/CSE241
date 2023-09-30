@@ -54,12 +54,18 @@ public class capacity {
                 //If they press 0
                 if(section == 0) {
                     System.out.println("Exiting...");
+                    try {
+                        connection.close();
+                    } catch (SQLException se) {
+                        se.printStackTrace();
+                    }
                     break; 
                 }
 
                 //Check if the year exists 
                 if(!yearExists(connection, section)) {
                     System.out.println("Year not in database.");
+                    continue;
                 }
 
                 //Ask for Semester
@@ -69,7 +75,7 @@ public class capacity {
 
                 //Check if the semester is valid
                 if(!semesterExists(semester)) {
-                    System.out.println("Please input one of fall, winter, spring, summer.");
+                    System.out.println("Please input one of Fall, Winter, Spring, Summer.");
                     continue; //restart the loop 
                 }
 
@@ -103,10 +109,9 @@ public class capacity {
                 System.out.println("Invalid input. Please enter a valid year or 0 to exit.");
                 scnr.nextLine(); // Clear the scanner buffer
             }
+
         } while(!valid);
         
-
-
     }
 
 
@@ -130,10 +135,10 @@ public class capacity {
 
     //Function to check if the semester is valid
     public static boolean semesterExists(String semester) {
-        return semester.equalsIgnoreCase("spring") || 
-               semester.equalsIgnoreCase("summer") || 
-               semester.equalsIgnoreCase("fall") ||
-               semester.equalsIgnoreCase("winter");
+        return semester.equals("Spring") || 
+               semester.equals("Summer") || 
+               semester.equals("Fall") ||
+               semester.equals("Winter");
     }
 
     //Function to check if the courseId is a 3 digit int. the smallest is 104 and the largest is 996

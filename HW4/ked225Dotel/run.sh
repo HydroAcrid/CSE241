@@ -6,7 +6,8 @@ if ! command -v java &> /dev/null; then
     exit 1
 fi
 
-# Run the Java program with the appropriate classpath
-java -cp .:lib/ojdbc8.jar capacity
+# Compile the Java file
+javac capacity.java
 
-# Note: Replace 'YourMainClass' with the actual name of your main class.
+# Run the Java program with the appropriate classpath
+java -cp .:lib/ojdbc11.jar capacity
