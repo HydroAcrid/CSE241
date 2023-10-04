@@ -156,7 +156,7 @@ public class capacity {
     //Function to find the capacity of the room
     public static boolean capacityCheck(Connection conn, int year, String semester, int courseID, int sectionID) {
         // SQL query to find the capacity, enrollment, and open spaces. Very long 
-        String query = "WITH SectionDetails AS (SELECT classroom.capacity, section.course_id, section.sec_id, section.semester, section.year FROM classroom JOIN section ON section.room_number = classroom.room_number WHERE section.course_id = ? AND section.sec_id = ? AND section.semester = ? AND section.year = ?), EnrollmentCount AS (SELECT s.capacity, COUNT(t.course_id) AS ENROLLMENT FROM SectionDetails s JOIN takes t ON s.course_id = t.course_id AND s.sec_id = t.sec_id AND s.semester = t.semester AND s.year = t.year GROUP BY s.capacity) SELECT capacity, ENROLLMENT, (capacity - ENROLLMENT) AS EmptySpots FROM EnrollmentCount";
+        String query = "WITH SectionDetails AS (SELECT classroom.capacity, section.course_id, section.sec_id, section.semester, section.year FROM classroom JOIN section ON section.room_number = classroom.room_number WHERE section.course_id = ? AND section.sec_id = ? AND section.semester = ? AND section.year = ?), EnrollmentCount AS (SELECT s.capacity, COUNT(t.course_id) ENROLLMENT FROM SectionDetails s JOIN takes t ON s.course_id = t.course_id AND s.sec_id = t.sec_id AND s.semester = t.semester AND s.year = t.year GROUP BY s.capacity) SELECT capacity, ENROLLMENT, (capacity - ENROLLMENT) EmptySpots FROM EnrollmentCount";
     
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             // Set the parameters
