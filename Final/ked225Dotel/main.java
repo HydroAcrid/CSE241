@@ -33,7 +33,35 @@ public class main {
             }
         } while (connection == null);
 
+        boolean valid = false; 
 
-        
+
+
     }
+
+
+
+    public static void menu() {
+        System.out.println();
+    }
+
+    public static void propertyManInterface() {
+        System.out.println();
+    }
+
+    public static void tenantInterface() {
+        System.out.println();
+    }
+
+    public static void companyManInterface() {
+        System.out.println();
+    }
+
+    public static void financialManInterface() {
+        System.out.println();
+    }
+
+
+
+   
 }
