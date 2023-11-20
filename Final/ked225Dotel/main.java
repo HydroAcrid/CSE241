@@ -41,7 +41,8 @@ public class main {
         boolean valid = false; 
         do {
             try {
-
+                menu(scnr);
+                
             } catch(InputMismatchException e) {
                 System.out.println("Invalid input.");
             }
@@ -111,6 +112,15 @@ public class main {
 
     public static void financialManInterface() {
         System.out.println();
+    }
+
+    /**
+     * Method to check your login privileges. 
+     * Change this to a boolean later to identify which type of user you are. 
+     * @param scnr
+     */
+    public static void privilegeLogin(Scanner scnr) {
+
     }
 
 
