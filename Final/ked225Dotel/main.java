@@ -6,6 +6,10 @@ public class main {
     //Database URL
     static final String DB_URL = "jdbc:oracle:thin:@edgar1.cse.lehigh.edu:1521:cse241";
 
+    //This is temporary
+    static final String DotelUser = "ked225";
+    static final String DotelPassword = "3SnowAcrid";
+
     public static void main(String[] args) {
         //Variable setup
         String user;
@@ -25,7 +29,8 @@ public class main {
                 password = scnr.nextLine();
 
                 //Trying to connect to database
-                connection = DriverManager.getConnection(DB_URL, user, password);
+                //connection = DriverManager.getConnection(DB_URL, user, password);
+                connection = DriverManager.getConnection(DB_URL, DotelUser, DotelPassword); //TEMP LINE 
                 System.out.println("Connection Successful. Rad.");
 
             } catch (SQLException e) {
