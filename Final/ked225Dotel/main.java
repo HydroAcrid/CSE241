@@ -26,7 +26,7 @@ public class main {
 
                 //Trying to connect to database
                 connection = DriverManager.getConnection(DB_URL, user, password);
-                System.out.println("Connection Successful. Epic.");
+                System.out.println("Connection Successful. Rad.");
 
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -34,7 +34,13 @@ public class main {
         } while (connection == null);
 
         boolean valid = false; 
+        do {
+            try {
 
+            } catch(InputMismatchException e) {
+                System.out.println("Invalid input.");
+            }
+        }
 
 
     }
