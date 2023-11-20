@@ -53,8 +53,48 @@ public class main {
 
 
 
-    public static void menu() {
-        System.out.println();
+    //Main menu 
+    public static void menu(Scanner scnr) {
+        System.out.println("Welcome. Please select an interface and login.");
+        boolean valid = false;
+        int option;
+
+        do {
+            try {
+                System.out.println("1. Property Manager");
+                System.out.println("2. Tenant");
+                System.out.println("3. Company Manager");
+                System.out.println("4. Financial Manager");
+                System.out.println("5. Exit");
+
+                option = scnr.nextInt();
+                if(option == 1) {
+                    propertyManInterface();
+                    valid = true;
+                }
+                else if(option == 2) {
+                    tenantInterface();
+                    valid = true;
+                }
+                else if(option == 3) {
+                    companyManInterface();
+                    valid = true;
+                }
+                else if(option == 4) {
+                    financialManInterface();
+                    valid = true;
+                }
+                else if(option == 5) {
+                    System.out.println("Goodbye.");
+                    System.exit(0);
+                }
+                else {
+                    System.out.println("Please select options 1-5.");
+                }
+            } catch(InputMismatchException e) {
+                System.out.println("Invalid input.");
+            }
+        } while(!valid);
     }
 
     public static void propertyManInterface() {
