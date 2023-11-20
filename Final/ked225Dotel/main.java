@@ -40,8 +40,9 @@ public class main {
             } catch(InputMismatchException e) {
                 System.out.println("Invalid input.");
             }
-        }
+        } while(!valid);
 
+        scnr.close();
 
     }
 
