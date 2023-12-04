@@ -64,9 +64,8 @@ public class main {
             try {
                 System.out.println("1. Property Manager");
                 System.out.println("2. Tenant");
-                System.out.println("3. Company Manager");
-                System.out.println("4. Financial Manager");
-                System.out.println("5. Exit");
+                System.out.println("3. Financial Manager");
+                System.out.println("4. Exit");
 
                 option = scnr.nextInt();
                 if(option == 1) {
@@ -78,19 +77,15 @@ public class main {
                     valid = true;
                 }
                 else if(option == 3) {
-                    companyManInterface();
-                    valid = true;
-                }
-                else if(option == 4) {
                     financialManInterface();
                     valid = true;
                 }
-                else if(option == 5) {
+                else if(option == 4) {
                     System.out.println("Goodbye.");
                     System.exit(0);
                 }
                 else {
-                    System.out.println("Please select options 1-5.");
+                    System.out.println("Please select options 1-4.");
                 }
             } catch(InputMismatchException e) {
                 System.out.println("Invalid input.");
@@ -115,13 +110,38 @@ public class main {
     }
 
     /**
-     * Method to check your login privileges. 
-     * Change this to a boolean later to identify which type of user you are. 
+     * 
+     * @param status: Checks the type of interface you're trying to login to
+     * 1 = Property Manager
+     * 2 = Tenant
+     * 3 = Company Manager
+     * 4 = Financial Manager
      * @param scnr
      */
-    public static void privilegeLogin(Scanner scnr) {
+    public static void privilegeLogin(int status, Scanner scnr) {
 
     }
+
+    /*
+     Property Manager:
+        recordVisitData()
+        recordLeaseData()
+        recordMoveOut()
+        addPersonToLease()
+        addPetToLease()
+        setMoveOutDate()
+     Tenant:
+        checkPaymentStatus()
+        makeRentalPayment()
+        updatePersonalData()
+     Company Manager:
+        addNewProperty()
+        generatePropertyData() (possibly with parameters for size, bedrooms, etc.)
+     Financial Manager:
+        collectAggregateData() (with parameters to specify the scope, like a specific property or the entire enterprise)
+        generateFinancialReports()
+     */
+
 
 
 
