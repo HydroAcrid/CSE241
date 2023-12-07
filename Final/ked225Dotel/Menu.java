@@ -2,6 +2,8 @@ package Final.ked225Dotel;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+import Final.ked225Dotel.interfaces.Tenant;
+
 public class Menu {
     public static void displayMainMenu(Scanner scnr) {
         boolean valid = false;
