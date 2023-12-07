@@ -2,6 +2,7 @@ package Final.ked225Dotel;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+import Final.ked225Dotel.interfaces.PropertyManager;
 import Final.ked225Dotel.interfaces.Tenant;
 
 public class Menu {
@@ -22,6 +23,8 @@ public class Menu {
                         // Instantiate and use the Property Manager interface
                         System.out.println("Property Manager Interface selected.");
                         valid = true;
+                        PropertyManager prop = new PropertyManager();
+                        prop.addPersonToLease();
                         break;
                     case 2:
                         // Instantiate and use the Tenant interface
@@ -35,6 +38,7 @@ public class Menu {
                         break;
                     case 4:
                         System.out.println("Goodbye.");
+                        DatabaseUtil.disconnectFromDatabase();
                         System.exit(0);
                         break;
                     default:

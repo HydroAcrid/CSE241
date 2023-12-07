@@ -1,2 +1,2 @@
-Main-Class: main
+Main-Class: Final.ked225Dotel.main
 Class-Path: lib/ojdbc11.jar

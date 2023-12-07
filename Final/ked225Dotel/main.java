@@ -11,11 +11,14 @@ public class main {
 
             // Starting the main menu
             Menu.displayMainMenu(scnr);
-        } finally {
+
+        }
+        finally {
             scnr.close();
             // Ensure database connection is closed
             DatabaseUtil.disconnectFromDatabase();
         }
+        
     }
     
     // //Database URL
