@@ -36,9 +36,9 @@ public class Tenant {
         }
     }
 
+    //Method to check that the email is in the correct format 
     private static boolean isValidEmail(String email) {
-        // Implement a more robust email validation 
-        return email.contains("@") && email.contains(".");
+        return email.matches("\\S+@\\S+\\.\\S+");
     }
 
     private static int authenticateTenantByEmail(String email) {
@@ -96,7 +96,7 @@ public class Tenant {
                     makeRentalPayment(scnr, tenantId);
                     break;
                 case 3:
-                    updatePersonalData(scnr);
+                    updatePersonalData(scnr, tenantId);
                     break;
                 case 4:
                     exitMenu = true;
@@ -226,7 +226,7 @@ public class Tenant {
         }
     }
 
-    private static int getPaymentMethodId(Scanner scanner, int tenantId) {
+    private static int getPaymentMethodId(Scanner scnr, int tenantId) {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -252,13 +252,13 @@ public class Tenant {
             int inputId;
             do {
                 System.out.print("Enter the ID of the payment method you wish to use: ");
-                while (!scanner.hasNextInt()) {
+                while (!scnr.hasNextInt()) {
                     System.out.println("That's not a valid ID. Please enter a number.");
-                    scanner.next(); // discard non-integer input
+                    scnr.next(); // discard non-integer input
                     System.out.print("Enter the ID of the payment method you wish to use: ");
                 }
-                inputId = scanner.nextInt();
-                scanner.nextLine(); // Consume the newline left-over
+                inputId = scnr.nextInt();
+                scnr.nextLine(); // Consume the newline left-over
 
                 if (validIds.contains(inputId)) {
                     paymentMethodId = inputId;
@@ -327,10 +327,104 @@ public class Tenant {
     }
     
     
-    //Method to update a tenant's personal data 
-    private static void updatePersonalData(Scanner scanner) {
-        // Implement the logic to update personal data
+    //Method to update a tenant's personal data. Specifically, their phone number or email 
+    private static void updatePersonalData(Scanner scnr, int tenantId) {
         System.out.println("Updating personal data...");
-        // Example: Ask for new data (e.g., phone number, email) and update the records
+    
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = DatabaseUtil.getConnection();
+            conn.setAutoCommit(false); // Start transaction block
+            
+            // Fetch current data
+            String fetchSql = "SELECT email_addr, phone_num FROM Tenant WHERE ten_id = ?";
+            pstmt = conn.prepareStatement(fetchSql);
+            pstmt.setInt(1, tenantId);
+            rs = pstmt.executeQuery();
+            
+            String currentEmail = "";
+            String currentPhone = "";
+            if (rs.next()) {
+                currentEmail = rs.getString("email_addr");
+                currentPhone = rs.getString("phone_num");
+            }
+            rs.close();
+            pstmt.close();
+            
+            // Ask for new phone number
+            String newPhone = currentPhone;
+            do {
+                System.out.print("Enter your new phone number (or press enter to keep [" + currentPhone + "]): ");
+                String input = scnr.nextLine();
+                if (!input.isEmpty() && !isValidPhoneNumber(input)) {
+                    System.out.println("Invalid phone format. Please try again.");
+                } else if (!input.isEmpty()) {
+                    newPhone = input;
+                }
+            } while (!newPhone.equals(input) && !isValidPhoneNumber(newPhone));
+            
+            // Ask for new email
+            String newEmail = currentEmail;
+            do {
+                System.out.print("Enter your new email (or press enter to keep [" + currentEmail + "]): ");
+                String input = scnr.nextLine();
+                if (!input.isEmpty() && !isValidEmail(input)) {
+                    System.out.println("Invalid email format. Please try again.");
+                } else if (!input.isEmpty()) {
+                    newEmail = input;
+                }
+            } while (!newEmail.equals(input) && !isValidEmail(newEmail));
+            
+            // Update tenant's information
+            String updateSql = "UPDATE Tenant SET phone_num = ?, email_addr = ? WHERE ten_id = ?";
+            pstmt = conn.prepareStatement(updateSql);
+            pstmt.setString(1, newPhone);
+            pstmt.setString(2, newEmail);
+            pstmt.setInt(3, tenantId);
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                System.out.println("Your personal data has been updated successfully.");
+                conn.commit(); // Commit the transaction
+            } else {
+                System.out.println("No changes were made to your personal data.");
+                conn.rollback(); // Rollback any changes
+            }
+            
+        } catch (SQLException e) {
+            System.out.println("Error occurred while updating personal data.");
+            e.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.rollback(); // Rollback the transaction on error
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } 
+        finally {
+            try {
+                if (rs != null && !rs.isClosed()) rs.close();
+                if (pstmt != null && !pstmt.isClosed()) pstmt.close();
+                if (conn != null && !conn.isClosed()) {
+                    conn.setAutoCommit(true); // Reset auto-commit
+                    conn.close();
+                }
+            } 
+            catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
+
+    private static boolean isValidPhoneNumber(String phoneNumber) {
+        // This regex will validate a phone number of the format 'XXX-XXX-XXXX'
+        return phoneNumber.matches("\\d{3}-\\d{3}-\\d{4}");
+    }
+
+    
+    
+    
 }
