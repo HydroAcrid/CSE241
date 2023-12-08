@@ -28,7 +28,7 @@ public class Menu {
                         // Instantiate and use the Tenant interface
                         System.out.println("Tenant Interface selected.");
                         valid = true;
-                        break;
+                        Tenant.tenantLogin(scnr);
                     case 3:
                         // Instantiate and use the Financial Manager interface
                         System.out.println("Financial Manager Interface selected.");
