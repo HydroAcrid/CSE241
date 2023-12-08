@@ -38,5 +38,48 @@ public class DatabaseUtil {
         }
     }
 
+    // Method to ensure phonumbers are valid:
+    public static boolean isValidPhoneNumber(String phoneNumber) {
+        //This regex will validate a phone number of the format 'XXX-XXX-XXXX'
+        return phoneNumber.matches("\\d{3}-\\d{3}-\\d{4}");
+    }
+
+    //Method to check that the email is in the correct format 
+    public static boolean isValidEmail(String email) {
+        return email.matches("\\S+@\\S+\\.\\S+");
+    }
+
+    // In DatabaseUtil class
+    public static boolean emailExists(String email) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        boolean exists = false;
+
+        try {
+            conn = getConnection();
+            String sql = "SELECT COUNT(*) FROM Tenant WHERE email_addr = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, email);
+            rs = pstmt.executeQuery();
+
+            if (rs.next() && rs.getInt(1) > 0) {
+                exists = true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return exists;
+    }
+
+
     
 }

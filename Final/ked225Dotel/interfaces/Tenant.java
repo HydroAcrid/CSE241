@@ -20,7 +20,7 @@ public class Tenant {
             System.out.println("Please input your email address for login:");
             String email = scnr.nextLine();
             
-            if (isValidEmail(email)) {
+            if (DatabaseUtil.isValidEmail(email)) {
                 tenantId = authenticateTenantByEmail(email);
                 if (tenantId == -1) {
                     System.out.println("Authentication failed. Please try again.");
@@ -36,10 +36,6 @@ public class Tenant {
         }
     }
 
-    //Method to check that the email is in the correct format 
-    private static boolean isValidEmail(String email) {
-        return email.matches("\\S+@\\S+\\.\\S+");
-    }
 
     private static int authenticateTenantByEmail(String email) {
         PreparedStatement pstmt = null;
@@ -359,7 +355,7 @@ public class Tenant {
             do {
                 System.out.print("Enter your new phone number (or press enter to keep [" + currentPhone + "]): ");
                 newPhone = scnr.nextLine();
-                if (!newPhone.isEmpty() && !isValidPhoneNumber(newPhone)) {
+                if (!newPhone.isEmpty() && !DatabaseUtil.isValidPhoneNumber(newPhone)) {
                     System.out.println("Invalid phone format. Please try again.");
                     continue;
                 }
@@ -372,7 +368,7 @@ public class Tenant {
             do {
                 System.out.print("Enter your new email (or press enter to keep [" + currentEmail + "]): ");
                 newEmail = scnr.nextLine();
-                if (!newEmail.isEmpty() && !isValidEmail(newEmail)) {
+                if (!newEmail.isEmpty() && !DatabaseUtil.isValidEmail(newEmail)) {
                     System.out.println("Invalid email format. Please try again.");
                     continue;
                 }
@@ -419,11 +415,7 @@ public class Tenant {
     }
 
 
-    private static boolean isValidPhoneNumber(String phoneNumber) {
-        //This regex will validate a phone number of the format 'XXX-XXX-XXXX'
-        return phoneNumber.matches("\\d{3}-\\d{3}-\\d{4}");
-    }
-
+    
     
     
     
