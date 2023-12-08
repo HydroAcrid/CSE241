@@ -10,6 +10,7 @@ public class DatabaseUtil {
     // Database connection
     private static Connection connection = null;
 
+    //Method to connect to the database
     public static void connectToDatabase() {
         try {
             // Attempting to establish a database connection
@@ -20,6 +21,12 @@ public class DatabaseUtil {
         }
     }
 
+    // Method to get the current database connection
+    public static Connection getConnection() {
+        return connection;
+    }
+
+    //Method to disconnect from the database 
     public static void disconnectFromDatabase() {
         try {
             if (connection != null && !connection.isClosed()) {
@@ -31,5 +38,5 @@ public class DatabaseUtil {
         }
     }
 
-    //add more here later 
+    
 }

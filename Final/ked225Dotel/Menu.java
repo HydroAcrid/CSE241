@@ -23,8 +23,6 @@ public class Menu {
                         // Instantiate and use the Property Manager interface
                         System.out.println("Property Manager Interface selected.");
                         valid = true;
-                        PropertyManager prop = new PropertyManager();
-                        prop.addPersonToLease();
                         break;
                     case 2:
                         // Instantiate and use the Tenant interface
@@ -51,4 +49,5 @@ public class Menu {
             }
         } while (!valid);
     }
+
 }
