@@ -211,7 +211,8 @@ public class Tenant {
         } catch (SQLException e) {
             try {
                 if (conn != null) conn.rollback();
-            } catch (SQLException se) {
+            } 
+            catch (SQLException se) {
                 se.printStackTrace();
             }
             System.out.println("Database error occurred while processing payment.");
@@ -274,7 +275,6 @@ public class Tenant {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
-                if (conn != null) conn.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
@@ -411,7 +411,6 @@ public class Tenant {
                 if (pstmt != null && !pstmt.isClosed()) pstmt.close();
                 if (conn != null && !conn.isClosed()) {
                     conn.setAutoCommit(true); // Reset auto-commit
-                    conn.close();
                 }
             } 
             catch (SQLException ex) {
@@ -421,7 +420,7 @@ public class Tenant {
     }
 
     private static boolean isValidPhoneNumber(String phoneNumber) {
-        // This regex will validate a phone number of the format 'XXX-XXX-XXXX'
+        //This regex will validate a phone number of the format 'XXX-XXX-XXXX'
         return phoneNumber.matches("\\d{3}-\\d{3}-\\d{4}");
     }
 
