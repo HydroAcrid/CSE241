@@ -9,15 +9,6 @@ import java.util.Scanner;
 import Final.ked225Dotel.DatabaseUtil;
 
 public class Tenant {
-    
-
-    public void makeRentalPayment() {
-        // Implementation code
-    }
-
-    public void updatePersonalData() {
-        // Implementation code
-    }
 
     public static void tenantLogin(Scanner scnr) {
         System.out.println("You have selected: Tenant");
@@ -97,7 +88,7 @@ public class Tenant {
 
             switch (choice) {
                 case 1:
-                    checkPaymentStatus();
+                    checkPaymentStatus(tenantId);
                     break;
                 case 2:
                     makeRentalPayment(scanner);
@@ -116,10 +107,54 @@ public class Tenant {
     }
 
     //Method to check the status for a payment 
-    private static void checkPaymentStatus() {
-        // Implement the logic to check payment status
-        System.out.println("Checking payment status...");
-        // Example: Display amount due, if any
+    private static void checkPaymentStatus(int tenantId) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            // Get the database connection
+            conn = DatabaseUtil.getConnection();
+
+            // SQL query to check for outstanding payment dues for the tenant
+            String sql = "SELECT Lease.lease_id, Lease.rent_amt - NVL(SUM(Payment.amount), 0) amount_due " +
+                     "FROM Lease " +
+                     "LEFT JOIN Payment ON Lease.lease_id = Payment.lease_id " +
+                     "WHERE Lease.ten_id = ? " +
+                     "GROUP BY Lease.lease_id, Lease.rent_amt";
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, tenantId);
+
+            rs = pstmt.executeQuery();
+
+            // Check if there are results and output the payment status
+            boolean hasDues = false;
+            while (rs.next()) {
+                int leaseId = rs.getInt("lease_id");
+                double amountDue = rs.getDouble("amount_due");
+                if (amountDue > 0) {
+                    System.out.println("Lease ID: " + leaseId + " has an outstanding balance of: $" + amountDue);
+                    hasDues = true;
+                }
+            }
+
+            if (!hasDues) {
+                System.out.println("No outstanding dues. All payments are up to date.");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Database error occurred while checking payment status.");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                // Don't close the connection if it's managed elsewhere
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     //Method to make a rental payment 
