@@ -356,9 +356,10 @@ public class Tenant {
             
             // Ask for new phone number
             String newPhone = currentPhone;
+            String input = "";
             do {
                 System.out.print("Enter your new phone number (or press enter to keep [" + currentPhone + "]): ");
-                String input = scnr.nextLine();
+                input = scnr.nextLine();
                 if (!input.isEmpty() && !isValidPhoneNumber(input)) {
                     System.out.println("Invalid phone format. Please try again.");
                 } else if (!input.isEmpty()) {
@@ -370,7 +371,7 @@ public class Tenant {
             String newEmail = currentEmail;
             do {
                 System.out.print("Enter your new email (or press enter to keep [" + currentEmail + "]): ");
-                String input = scnr.nextLine();
+                input = scnr.nextLine();
                 if (!input.isEmpty() && !isValidEmail(input)) {
                     System.out.println("Invalid email format. Please try again.");
                 } else if (!input.isEmpty()) {
