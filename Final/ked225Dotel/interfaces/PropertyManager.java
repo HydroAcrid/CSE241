@@ -17,8 +17,8 @@ public class PropertyManager {
             System.out.println("Property Manager Menu:");
             System.out.println("1. Add person to lease");
             System.out.println("2. Add pet to lease");
-            System.out.println("3. View all visitors");
-            System.out.println("4. View all leases");
+            System.out.println("3. Record a visitor");
+            System.out.println("4. Record a lease");
             System.out.println("5. View move-out dates");
             System.out.println("6. Set move-out date");
             System.out.println("7. Exit");
@@ -36,7 +36,7 @@ public class PropertyManager {
                     addPetToLease(scnr);
                     break;
                 case 3:
-                    recordVisitData();
+                    recordVisitData(scnr);
                     break;
                 case 4:
                     recordLeaseData();
@@ -57,9 +57,90 @@ public class PropertyManager {
         }
     }
     
-    private static void recordVisitData() {
-        // Implementation code
+    private static void recordVisitData(Scanner scnr) {
+        System.out.println("Record Visit Data");
+    
+        String visitorName;
+        int age;
+        double salary;
+    
+        while (true) {
+            System.out.print("Enter Visitor's Name: ");
+            visitorName = scnr.nextLine();
+            if (!visitorName.isEmpty()) {
+                break;
+            }
+            System.out.println("Name cannot be empty. Please try again.");
+        }
+    
+        while (true) {
+            System.out.print("Enter Visitor's Age: ");
+            if (scnr.hasNextInt()) {
+                age = scnr.nextInt();
+                scnr.nextLine(); // Consume the newline left-over
+                if (age > 0) {
+                    break;
+                }
+                System.out.println("Age must be greater than 0. Please try again.");
+            } else {
+                System.out.println("Invalid input. Please enter a number.");
+                scnr.next(); // discard invalid input
+            }
+        }
+    
+        while (true) {
+            System.out.print("Enter Visitor's Salary: ");
+            if (scnr.hasNextDouble()) {
+                salary = scnr.nextDouble();
+                scnr.nextLine(); // Consume the newline left-over
+                if (salary >= 0) {
+                    break;
+                }
+                System.out.println("Salary cannot be negative. Please try again.");
+            } else {
+                System.out.println("Invalid input. Please enter a number.");
+                scnr.next(); // discard invalid input
+            }
+        }
+    
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+    
+        try {
+            // Get the database connection
+            conn = DatabaseUtil.getConnection();
+    
+            // SQL to insert new visitor
+            String sql = "INSERT INTO Visitor (visit_name, age, salary) VALUES (?, ?, ?)";
+    
+            // Create PreparedStatement
+            pstmt = conn.prepareStatement(sql);
+    
+            // Set parameters
+            pstmt.setString(1, visitorName);
+            pstmt.setInt(2, age);
+            pstmt.setDouble(3, salary);
+    
+            // Execute update
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                System.out.println("Visitor data recorded successfully.");
+            } else {
+                System.out.println("Failed to record visitor data.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Database error occurred.");
+            e.printStackTrace();
+        } finally {
+            // Close resources
+            try {
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
+    
 
     public static void recordLeaseData() {
         // Implementation code
