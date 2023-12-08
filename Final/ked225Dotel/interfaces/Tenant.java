@@ -75,7 +75,7 @@ public class Tenant {
     }
 
     // Method to display tenant menu 
-    public static void tenantMenu(Scanner scanner, int tenantId) {
+    public static void tenantMenu(Scanner scnr, int tenantId) {
         boolean exitMenu = false;
         while (!exitMenu) {
             System.out.println("Tenant Menu:");
@@ -85,18 +85,18 @@ public class Tenant {
             System.out.println("4. Exit");
 
             System.out.print("Choose an option: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine();  // Consume the newline left-over
+            int choice = scnr.nextInt();
+            scnr.nextLine();  // Consume the newline left-over
 
             switch (choice) {
                 case 1:
                     checkPaymentStatus(tenantId);
                     break;
                 case 2:
-                    makeRentalPayment(scanner);
+                    makeRentalPayment(scnr, tenantId);
                     break;
                 case 3:
-                    updatePersonalData(scanner);
+                    updatePersonalData(scnr);
                     break;
                 case 4:
                     exitMenu = true;
@@ -167,15 +167,15 @@ public class Tenant {
         // Ask for the lease ID and the amount to pay
         System.out.print("Enter Lease ID: ");
         int leaseId = scnr.nextInt();
-        scanner.nextLine(); // Consume the newline left-over
+        scnr.nextLine(); // Consume the newline left-over
     
         System.out.print("Enter payment amount: ");
         double amount = scnr.nextDouble();
-        scanner.nextLine(); // Consume the newline left-over
+        scnr.nextLine(); // Consume the newline left-over
     
         // This is where you would collect payment method details.
         // For simplicity, let's assume the tenant is paying with a saved payment method, and you have a paymentMethodId.
-        int paymentMethodId = getPaymentMethodId(tenantId, scnr); // Implement this method as needed.
+        int paymentMethodId = getPaymentMethodId(scnr, tenantId); // Implement this method as needed.
     
         // Insert payment into the database
         Connection conn = null;
