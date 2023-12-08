@@ -157,12 +157,73 @@ public class Tenant {
         }
     }
 
-    //Method to make a rental payment 
-    private static void makeRentalPayment(Scanner scanner) {
-        // Implement the logic to make a rental payment
+    //Method to make a rental payment
+    //THIS NEEDS TO BE UPDATEDDDDDD 
+    private static void makeRentalPayment(Scanner scanner, int tenantId) {
         System.out.println("Making a rental payment...");
-        // Example: Ask for payment details and process the payment
+    
+        // Ask for the lease ID and the amount to pay
+        System.out.print("Enter Lease ID: ");
+        int leaseId = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline left-over
+    
+        System.out.print("Enter payment amount: ");
+        double amount = scanner.nextDouble();
+        scanner.nextLine(); // Consume the newline left-over
+    
+        // This is where you would collect payment method details.
+        // For simplicity, let's assume the tenant is paying with a saved payment method, and you have a paymentMethodId.
+        int paymentMethodId = getPaymentMethodId(tenantId, scanner); // Implement this method as needed.
+    
+        // Insert payment into the database
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+    
+        try {
+            conn = DatabaseUtil.getConnection();
+    
+            // Start a transaction
+            conn.setAutoCommit(false);
+    
+            String sql = "INSERT INTO Payment (pay_id, pay_date, amount, payment_method_id, lease_id) " +
+                         "VALUES (payment_seq.NEXTVAL, CURRENT_DATE, ?, ?, ?)";
+    
+            pstmt = conn.prepareStatement(sql);
+    
+            // Set parameters for the payment
+            pstmt.setDouble(1, amount);
+            pstmt.setInt(2, paymentMethodId);
+            pstmt.setInt(3, leaseId);
+    
+            // Execute the payment insert
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows == 1) {
+                // Commit the transaction if the insert was successful
+                conn.commit();
+                System.out.println("Payment was successful.");
+            } else {
+                // Rollback the transaction if the insert failed
+                conn.rollback();
+                System.out.println("Payment failed to process.");
+            }
+        } catch (SQLException e) {
+            try {
+                if (conn != null) conn.rollback();
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+            System.out.println("Database error occurred while processing payment.");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.setAutoCommit(true); // Reset to default
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
+    
 
     //Method to update a tenant's personal data 
     private static void updatePersonalData(Scanner scanner) {
