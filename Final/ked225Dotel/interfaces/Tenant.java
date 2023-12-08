@@ -10,9 +10,6 @@ import Final.ked225Dotel.DatabaseUtil;
 
 public class Tenant {
     
-    public void checkPaymentStatus() {
-        // Implementation code
-    }
 
     public void makeRentalPayment() {
         // Implementation code
@@ -25,39 +22,38 @@ public class Tenant {
     public static void tenantLogin(Scanner scnr) {
         System.out.println("You have selected: Tenant");
         
-        boolean isAuthenticated = false;
-        while (!isAuthenticated) {
+        int tenantId = -1;  // Initialize with an invalid tenant ID
+        while (tenantId == -1) {
             System.out.println("Please input your email address for login:");
             String email = scnr.nextLine();
             
             if (isValidEmail(email)) {
-                isAuthenticated = authenticateTenantByEmail(email);
-                if (!isAuthenticated) {
+                tenantId = authenticateTenantByEmail(email);
+                if (tenantId == -1) {
                     System.out.println("Authentication failed. Please try again.");
                 }
             } else {
                 System.out.println("Invalid email format. Please try again.");
             }
         }
-    
-        if (isAuthenticated) {
+
+        if (tenantId != -1) {
             System.out.println("Login successful!");
-            // Proceed with further logic after successful login
-            // Add more here 
+            tenantMenu(scnr, tenantId);  // Pass tenantId to the tenantMenu method
         }
     }
 
     private static boolean isValidEmail(String email) {
-        // Implement a more robust email validation if needed
+        // Implement a more robust email validation 
         return email.contains("@") && email.contains(".");
     }
 
-    private static boolean authenticateTenantByEmail(String email) {
+    private static int authenticateTenantByEmail(String email) {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+        int tenantId = -1;  // Default to an invalid tenant ID
 
         try {
-            // Use the static connection object from DatabaseUtil
             Connection conn = DatabaseUtil.getConnection(); 
             String sql = "SELECT ten_id FROM Tenant WHERE email_addr = ?";
             pstmt = conn.prepareStatement(sql);
@@ -65,30 +61,28 @@ public class Tenant {
 
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                // If there is a result, the email exists in the database.
+                tenantId = rs.getInt("ten_id");  // Get the tenant ID from the query result
                 System.out.println("Authentication successful.");
-                return true;
             } else {
                 System.out.println("Authentication failed. Tenant not found.");
-                return false;
             }
         } catch (SQLException e) {
             System.out.println("Database error occurred.");
             e.printStackTrace();
-            return false;
         } finally {
             try {
                 if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
-                // Do not close the connection here; it is managed by DatabaseUtil.
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
         }
+
+        return tenantId;  // Return the tenant ID or -1 if not authenticated
     }
 
-    //Tenant Menu Method once email has been authenticated 
-    public static void tenantMenu(Scanner scanner) {
+    // Method to display tenant menu 
+    public static void tenantMenu(Scanner scanner, int tenantId) {
         boolean exitMenu = false;
         while (!exitMenu) {
             System.out.println("Tenant Menu:");
@@ -119,4 +113,26 @@ public class Tenant {
                     System.out.println("Invalid option. Please try again.");
             }
         }
+    }
+
+    //Method to check the status for a payment 
+    private static void checkPaymentStatus() {
+        // Implement the logic to check payment status
+        System.out.println("Checking payment status...");
+        // Example: Display amount due, if any
+    }
+
+    //Method to make a rental payment 
+    private static void makeRentalPayment(Scanner scanner) {
+        // Implement the logic to make a rental payment
+        System.out.println("Making a rental payment...");
+        // Example: Ask for payment details and process the payment
+    }
+
+    //Method to update a tenant's personal data 
+    private static void updatePersonalData(Scanner scanner) {
+        // Implement the logic to update personal data
+        System.out.println("Updating personal data...");
+        // Example: Ask for new data (e.g., phone number, email) and update the records
+    }
 }

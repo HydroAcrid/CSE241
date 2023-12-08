@@ -17,6 +17,7 @@ public class Menu {
                 System.out.println("4. Exit");
 
                 int option = scnr.nextInt();
+                scnr.nextLine();  // Add this line to consume the remaining newline
 
                 switch (option) {
                     case 1:
@@ -29,6 +30,7 @@ public class Menu {
                         System.out.println("Tenant Interface selected.");
                         valid = true;
                         Tenant.tenantLogin(scnr);
+                        break;
                     case 3:
                         // Instantiate and use the Financial Manager interface
                         System.out.println("Financial Manager Interface selected.");
@@ -46,6 +48,7 @@ public class Menu {
             } catch (InputMismatchException e) {
                 System.out.println("Invalid input. Please enter a number 1-4.");
                 scnr.nextLine(); // Consume the incorrect input
+                continue;
             }
         } while (!valid);
     }
