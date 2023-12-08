@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import Final.ked225Dotel.DatabaseUtil;
@@ -159,21 +161,21 @@ public class Tenant {
 
     //Method to make a rental payment
     //THIS NEEDS TO BE UPDATEDDDDDD 
-    private static void makeRentalPayment(Scanner scanner, int tenantId) {
+    private static void makeRentalPayment(Scanner scnr, int tenantId) {
         System.out.println("Making a rental payment...");
     
         // Ask for the lease ID and the amount to pay
         System.out.print("Enter Lease ID: ");
-        int leaseId = scanner.nextInt();
+        int leaseId = scnr.nextInt();
         scanner.nextLine(); // Consume the newline left-over
     
         System.out.print("Enter payment amount: ");
-        double amount = scanner.nextDouble();
+        double amount = scnr.nextDouble();
         scanner.nextLine(); // Consume the newline left-over
     
         // This is where you would collect payment method details.
         // For simplicity, let's assume the tenant is paying with a saved payment method, and you have a paymentMethodId.
-        int paymentMethodId = getPaymentMethodId(tenantId, scanner); // Implement this method as needed.
+        int paymentMethodId = getPaymentMethodId(tenantId, scnr); // Implement this method as needed.
     
         // Insert payment into the database
         Connection conn = null;
@@ -223,8 +225,108 @@ public class Tenant {
             }
         }
     }
-    
 
+    private static int getPaymentMethodId(Scanner scanner, int tenantId) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        int paymentMethodId = -1;
+
+        try {
+            conn = DatabaseUtil.getConnection();
+            String sql = "SELECT pay_id, method_name FROM PaymentMethod WHERE ten_id = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, tenantId);
+
+            rs = pstmt.executeQuery();
+            
+            List<Integer> validIds = new ArrayList<>();
+            System.out.println("Available payment methods:");
+            while (rs.next()) {
+                int id = rs.getInt("pay_id");
+                String methodName = rs.getString("method_name");
+                validIds.add(id);
+                System.out.println(id + ": " + methodName);
+            }
+
+            int inputId;
+            do {
+                System.out.print("Enter the ID of the payment method you wish to use: ");
+                while (!scanner.hasNextInt()) {
+                    System.out.println("That's not a valid ID. Please enter a number.");
+                    scanner.next(); // discard non-integer input
+                    System.out.print("Enter the ID of the payment method you wish to use: ");
+                }
+                inputId = scanner.nextInt();
+                scanner.nextLine(); // Consume the newline left-over
+
+                if (validIds.contains(inputId)) {
+                    paymentMethodId = inputId;
+                } else {
+                    System.out.println("Invalid payment method selected. Please try again.");
+                }
+            } while (paymentMethodId == -1);
+
+        } catch (SQLException e) {
+            System.out.println("Database error occurred while retrieving payment methods.");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return paymentMethodId;
+    }
+
+
+    //Method to make sure the payment you're selecting matches your payment type in the database 
+    private static boolean isValidPaymentMethodId(int paymentMethodId, int tenantId) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        boolean isValid = false;
+    
+        try {
+            conn = DatabaseUtil.getConnection();
+            String sql = "SELECT COUNT(*) FROM (" +
+                         "SELECT pay_id FROM DebitCard WHERE ten_id = ? AND pay_id = ? " +
+                         "UNION ALL " +
+                         "SELECT pay_id FROM CreditCard WHERE ten_id = ? AND pay_id = ? " +
+                         "UNION ALL " +
+                         "SELECT pay_id FROM BankTransfer WHERE ten_id = ? AND pay_id = ?" +
+                         ")";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, tenantId);
+            pstmt.setInt(2, paymentMethodId);
+            pstmt.setInt(3, tenantId);
+            pstmt.setInt(4, paymentMethodId);
+            pstmt.setInt(5, tenantId);
+            pstmt.setInt(6, paymentMethodId);
+    
+            rs = pstmt.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                isValid = true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    
+        return isValid;
+    }
+    
+    
     //Method to update a tenant's personal data 
     private static void updatePersonalData(Scanner scanner) {
         // Implement the logic to update personal data
