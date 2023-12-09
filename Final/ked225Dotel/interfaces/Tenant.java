@@ -13,6 +13,7 @@ import Final.ked225Dotel.Menu;
 
 public class Tenant {
 
+    //Login for tenant 
     public static void tenantLogin(Scanner scnr) {
         System.out.println("You have selected: Tenant");
         
@@ -37,7 +38,7 @@ public class Tenant {
         }
     }
 
-
+    //Makes sure the email is valid 
     private static int authenticateTenantByEmail(String email) {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -225,6 +226,7 @@ public class Tenant {
         }
     }
 
+    // Method to get the type of payment method 
     private static int getPaymentMethodId(Scanner scnr, int tenantId) {
         Connection conn = null;
         PreparedStatement pstmt = null;

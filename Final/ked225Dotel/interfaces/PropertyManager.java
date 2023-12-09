@@ -15,6 +15,7 @@ import Final.ked225Dotel.Menu;
 
 public class PropertyManager {
 
+    // Method for main menu 
     public static void propertyManagerMenu(Scanner scnr) {
         boolean exitMenu = false;
         while (!exitMenu) {
@@ -25,7 +26,11 @@ public class PropertyManager {
             System.out.println("4. Record a lease");
             System.out.println("5. View move-out dates");
             System.out.println("6. Set move-out date");
-            System.out.println("7. Exit");
+            System.out.println("7. View all managers and which properties they oversee");
+            System.out.println("8. View all properties, their addresses, and their amenities");
+            System.out.println("9. View all apartments and their tenants");
+            System.out.println("10. Exit");
+            
     
             System.out.print("Choose an option: ");
             int choice = -1;
@@ -58,12 +63,21 @@ public class PropertyManager {
                     setMoveOutDate(scnr);
                     break;
                 case 7:
+                    setMoveOutDate(scnr);
+                    break;
+                case 8:
+                    setMoveOutDate(scnr);
+                    break;
+                case 9:
+                    setMoveOutDate(scnr);
+                    break;
+                case 10:
                     exitMenu = true;
                     System.out.println("Exiting Property Manager Menu.");
                     Menu.displayMainMenu(scnr);
                     break;
                 default:
-                    System.out.println("Invalid option. Please enter a number between 1 and 7.");
+                    System.out.println("Invalid option. Please enter a number between 1 and 10.");
             }
         }
     }
@@ -139,6 +153,7 @@ public class PropertyManager {
         }
     }
     
+    //Records and adds a visitor 
     private static void recordVisitData(Scanner scnr) {
         System.out.println("Record Visit Data");
     
@@ -221,6 +236,7 @@ public class PropertyManager {
         }
     }
     
+    // Method to a person to a lease 
     public static int addPersonToLease(Scanner scnr) {
         System.out.println("Adding a new tenant...");
     
@@ -391,7 +407,7 @@ public class PropertyManager {
     }
 
     
-
+    // Method to change the move out date 
     public static void recordMoveOutDate() {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -491,6 +507,49 @@ public class PropertyManager {
             }
         }
     }
+
+    private static void viewManagers() {
+        System.out.println("Viewing all managers and their properties...");
+    
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+    
+        try {
+            // Get database connection
+            conn = DatabaseUtil.getConnection();
+    
+            // Query to select managers and their properties
+            String sql = "SELECT m.man_name, p.prop_id, p.manager FROM Manager m JOIN Property p ON m.manager_id = p.manager";
+    
+            // Create PreparedStatement
+            pstmt = conn.prepareStatement(sql);
+    
+            // Execute query
+            rs = pstmt.executeQuery();
+    
+            // Process and display results
+            while (rs.next()) {
+                String managerName = rs.getString("man_name");
+                int propertyId = rs.getInt("prop_id");
+                String propertyName = rs.getString("manager"); // Assuming 'manager' is the property name
+    
+                System.out.println("Manager: " + managerName + ", Property ID: " + propertyId + ", Property Name: " + propertyName);
+            }
+        } catch (SQLException e) {
+            System.out.println("Database error occurred while retrieving manager and property information.");
+            e.printStackTrace();
+        } finally {
+            // Close resources
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+    
     
     
     
