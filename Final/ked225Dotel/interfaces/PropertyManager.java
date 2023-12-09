@@ -53,7 +53,7 @@ public class PropertyManager {
                     break;
                 case 7:
                     exitMenu = true;
-                    System.out.println("Exiting Tenant Menu.");
+                    System.out.println("Exiting Property Manager Menu.");
                     break;
                 default:
                     System.out.println("Invalid option. Please try again.");
