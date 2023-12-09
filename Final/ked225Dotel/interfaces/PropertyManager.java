@@ -619,9 +619,11 @@ public class PropertyManager {
                        + "GROUP BY a.apt_id "
                        + "ORDER BY a.apt_id";
     
+
             // Create PreparedStatement
             pstmt = conn.prepareStatement(sql);
-    
+            System.out.println("Executing query: " + sql);
+
             // Execute query
             rs = pstmt.executeQuery();
     
