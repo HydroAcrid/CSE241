@@ -550,9 +550,9 @@ public class PropertyManager {
         }
     }
 
-    // Method to check properties and amenities 
+    // Methods to check properties and amenities 
     private static void viewPropertiesAndAmenities() {
-        System.out.println("Viewing all properties, their addresses, and amenities...");
+        System.out.println("Viewing all properties, their addresses, and common amenities...");
     
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -562,8 +562,8 @@ public class PropertyManager {
             // Get database connection
             conn = DatabaseUtil.getConnection();
     
-            // Query to select property details including address and amenities
-            String sql = "SELECT p.prop_id, a.state, a.town, a.street, a.zip_code "
+            // Query to select property details including address and common amenities
+            String sql = "SELECT p.prop_id, a.state, a.town, a.street, a.zip_code, p.common_amen "
                        + "FROM Property p "
                        + "JOIN Address a ON p.addr_id = a.addr_id";
     
@@ -580,9 +580,10 @@ public class PropertyManager {
                 String town = rs.getString("town");
                 String street = rs.getString("street");
                 String zipCode = rs.getString("zip_code");
+                String commonAmenities = rs.getString("common_amen");
     
                 System.out.println("Property ID: " + propertyId + ", Address: " + street + ", " + town + ", " + state + ", " + zipCode);
-                // You might want to add code here to fetch and display amenities if needed
+                System.out.println("Common Amenities: " + commonAmenities);
             }
         } catch (SQLException e) {
             System.out.println("Database error occurred while retrieving property and address information.");
@@ -597,7 +598,8 @@ public class PropertyManager {
             }
         }
     }
-
+    
+    
     private static void viewApartmentsAndTenants() {
         System.out.println("Viewing all apartments and their tenants...");
     
@@ -609,8 +611,8 @@ public class PropertyManager {
             // Get database connection
             conn = DatabaseUtil.getConnection();
     
-            // SQL query to join Apartment, Lease, and Tenant tables
-            String sql = "SELECT a.apt_id, GROUP_CONCAT(t.name ORDER BY t.name SEPARATOR ', ') AS tenants "
+            // SQL query to join Apartment, Lease, and Tenant tables using LISTAGG for Oracle
+            String sql = "SELECT a.apt_id, LISTAGG(t.name, ', ') WITHIN GROUP (ORDER BY t.name) AS tenants "
                        + "FROM Apartment a "
                        + "JOIN Lease l ON a.apt_id = l.apt_id "
                        + "JOIN Tenant t ON l.ten_id = t.ten_id "
@@ -643,6 +645,8 @@ public class PropertyManager {
             }
         }
     }
+    
+    
     
 
 
