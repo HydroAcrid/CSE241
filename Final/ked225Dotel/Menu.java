@@ -13,8 +13,7 @@ public class Menu {
                 System.out.println("Welcome. Please select an interface and login:");
                 System.out.println("1. Property Manager");
                 System.out.println("2. Tenant");
-                System.out.println("3. Financial Manager");
-                System.out.println("4. Exit");
+                System.out.println("3. Exit");
 
                 int option = scnr.nextInt();
                 scnr.nextLine();  // Add this line to consume the remaining newline
@@ -33,21 +32,16 @@ public class Menu {
                         Tenant.tenantLogin(scnr);
                         break;
                     case 3:
-                        // Instantiate and use the Financial Manager interface
-                        System.out.println("Financial Manager Interface selected.");
-                        valid = true;
-                        break;
-                    case 4:
                         System.out.println("Goodbye.");
                         DatabaseUtil.disconnectFromDatabase();
                         System.exit(0);
                         break;
                     default:
-                        System.out.println("Please select options 1-4.");
+                        System.out.println("Please select options 1-3.");
                         break;
                 }
             } catch (InputMismatchException e) {
-                System.out.println("Invalid input. Please enter a number 1-4.");
+                System.out.println("Invalid input. Please enter a number 1-3.");
                 scnr.nextLine(); // Consume the incorrect input
                 continue;
             }

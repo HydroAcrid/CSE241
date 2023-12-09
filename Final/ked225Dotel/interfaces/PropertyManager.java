@@ -11,10 +11,10 @@ import java.sql.Date;
 
 
 import Final.ked225Dotel.DatabaseUtil;
+import Final.ked225Dotel.Menu;
 
 public class PropertyManager {
 
-    // Method to display tenant menu 
     public static void propertyManagerMenu(Scanner scnr) {
         boolean exitMenu = false;
         while (!exitMenu) {
@@ -26,12 +26,18 @@ public class PropertyManager {
             System.out.println("5. View move-out dates");
             System.out.println("6. Set move-out date");
             System.out.println("7. Exit");
-
-
+    
             System.out.print("Choose an option: ");
-            int choice = scnr.nextInt();
-            scnr.nextLine();  // Consume the newline left-over
-
+            int choice = -1;
+            if (scnr.hasNextInt()) {
+                choice = scnr.nextInt();
+                scnr.nextLine(); // Consume the newline left-over
+            } else {
+                System.out.println("Invalid option. Please try again.");
+                scnr.next(); // Discard invalid input
+                continue; // Skip the current iteration and go back to the start of the loop
+            }
+    
             switch (choice) {
                 case 1:
                     addPersonToLease(scnr);
@@ -54,12 +60,14 @@ public class PropertyManager {
                 case 7:
                     exitMenu = true;
                     System.out.println("Exiting Property Manager Menu.");
+                    Menu.displayMainMenu(scnr);
                     break;
                 default:
-                    System.out.println("Invalid option. Please try again.");
+                    System.out.println("Invalid option. Please enter a number between 1 and 7.");
             }
         }
     }
+    
     
 
     //Method to create a lease. First you need to make a tenant though because it is a full participation relationship 
