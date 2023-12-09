@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.sql.Date;
+
 
 import Final.ked225Dotel.DatabaseUtil;
 
@@ -41,13 +43,13 @@ public class PropertyManager {
                     recordVisitData(scnr);
                     break;
                 case 4:
-                    recrodLeaseData(scnr);
+                    recordLeaseData(scnr);
                     break;
                 case 5:
                     recordMoveOutDate();
                     break;
                 case 6:
-                    setMoveOutDate();
+                    setMoveOutDate(scnr);
                     break;
                 case 7:
                     exitMenu = true;
@@ -61,7 +63,7 @@ public class PropertyManager {
     
 
     //Method to create a lease. First you need to make a tenant though because it is a full participation relationship 
-    public static void recrodLeaseData(Scanner scnr) {
+    public static void recordLeaseData(Scanner scnr) {
         int tenantId = addPersonToLease(scnr);
 
         LocalDate startDate = null;
@@ -382,13 +384,49 @@ public class PropertyManager {
 
     
 
+    // Method to record move-out dates for all leases
     public static void recordMoveOutDate() {
+        try (Connection conn = DatabaseUtil.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement("SELECT lease_id, lease_end_date FROM Lease");
+            ResultSet rs = pstmt.executeQuery()) {
 
+            while (rs.next()) {
+                int leaseId = rs.getInt("lease_id");
+                Date moveOutDate = rs.getDate("lease_end_date");
+                System.out.println("Lease ID: " + leaseId + " has a move-out date of: " + moveOutDate);
+            }
+        } catch (SQLException e) {
+            System.out.println("Database error occurred while retrieving move-out dates.");
+            e.printStackTrace();
+        }
     }
 
-    public static void setMoveOutDate() {
-        // Implementation code
+    // Method to set a move-out date for a particular lease
+    public static void setMoveOutDate(Scanner scnr) {
+        System.out.print("Enter Lease ID for which you want to set a move-out date: ");
+        int leaseId = scnr.nextInt();
+        scnr.nextLine(); // consume the rest of the line
+
+        // Use promptForDate to ensure the user enters a valid date
+        LocalDate moveOutDate = DatabaseUtil.promptForDate(scnr, "Enter new move-out date (YYYY-MM-DD): ");
+
+        try (Connection conn = DatabaseUtil.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement("UPDATE Lease SET lease_end_date = ? WHERE lease_id = ?")) {
+
+            pstmt.setDate(1, java.sql.Date.valueOf(moveOutDate));
+            pstmt.setInt(2, leaseId);
+
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                System.out.println("Move-out date set successfully for Lease ID: " + leaseId);
+            } else {
+                System.out.println("Failed to set move-out date. Please check Lease ID and try again.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Database error occurred while setting move-out date.");
+            e.printStackTrace();
+        }
     }
 
-    // Additional methods related to Property Manager functionality
+
 }

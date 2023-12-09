@@ -1,5 +1,9 @@
 package Final.ked225Dotel;
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Scanner;
 
 public class DatabaseUtil {
     // Database URL
@@ -78,6 +82,22 @@ public class DatabaseUtil {
         }
 
         return exists;
+    }
+
+    // Function to prompt for a date and validate it
+    public static LocalDate promptForDate(Scanner scnr, String prompt) {
+        LocalDate date;
+        while (true) {
+            System.out.print(prompt);
+            String input = scnr.nextLine();
+            try {
+                date = LocalDate.parse(input, DateTimeFormatter.ISO_LOCAL_DATE);
+                break; // Will exit the while loop if parsing is successful
+            } catch (DateTimeParseException e) {
+                System.out.println("Invalid date format. Please use YYYY-MM-DD.");
+            }
+        }
+        return date;
     }
 
 
