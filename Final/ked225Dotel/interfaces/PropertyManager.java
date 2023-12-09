@@ -613,11 +613,12 @@ public class PropertyManager {
     
             // SQL query to join Apartment, Lease, and Tenant tables using LISTAGG for Oracle
             String sql = "SELECT a.apt_id, LISTAGG(t.name, ', ') WITHIN GROUP (ORDER BY t.name) AS tenants "
-                       + "FROM Apartment a "
-                       + "JOIN Lease l ON a.apt_id = l.apt_id "
-                       + "JOIN Tenant t ON l.ten_id = t.ten_id "
-                       + "GROUP BY a.apt_id "
-                       + "ORDER BY a.apt_id";
+                        + "FROM Apartment a "
+                        + "JOIN Lease l ON a.apt_id = l.apt_id "
+                        + "JOIN Tenant t ON l.ten_id = t.ten_id "
+                        + "GROUP BY a.apt_id "
+                        + "ORDER BY a.apt_id";
+
     
 
             // Create PreparedStatement
