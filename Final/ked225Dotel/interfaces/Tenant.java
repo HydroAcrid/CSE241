@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import Final.ked225Dotel.DatabaseUtil;
+import Final.ked225Dotel.Menu;
 
 public class Tenant {
 
@@ -78,7 +79,7 @@ public class Tenant {
             System.out.println("1. Check Payment Status");
             System.out.println("2. Make Rental Payment");
             System.out.println("3. Update Personal Data");
-            System.out.println("4. Exit");
+            System.out.println("4. Back to Interfaces");
 
             System.out.print("Choose an option: ");
             int choice = scnr.nextInt();
@@ -97,6 +98,7 @@ public class Tenant {
                 case 4:
                     exitMenu = true;
                     System.out.println("Exiting Tenant Menu.");
+                    Menu.displayMainMenu(scnr);
                     break;
                 default:
                     System.out.println("Invalid option. Please try again.");
