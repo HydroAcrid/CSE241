@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 import Final.ked225Dotel.DatabaseUtil;
 
@@ -39,7 +41,7 @@ public class PropertyManager {
                     recordVisitData(scnr);
                     break;
                 case 4:
-                    recordLeaseData();
+                    createNewLease(scnr);
                     break;
                 case 5:
                     recordMoveOutDate();
@@ -57,6 +59,76 @@ public class PropertyManager {
         }
     }
     
+
+    //Method to create a lease. First you need to make a tenant though because it is a full participation relationship 
+    public static void createNewLease(Scanner scnr) {
+        int tenantId = addPersonToLease(scnr);
+
+        LocalDate startDate = null;
+        while (startDate == null) {
+            System.out.print("Enter lease start date (format YYYY-MM-DD): ");
+            try {
+                startDate = LocalDate.parse(scnr.nextLine());
+            } catch (DateTimeParseException e) {
+                System.out.println("Invalid date format. Please use YYYY-MM-DD.");
+            }
+        }
+
+        LocalDate endDate = null;
+        while (endDate == null) {
+            System.out.print("Enter lease end date (format YYYY-MM-DD): ");
+            try {
+                endDate = LocalDate.parse(scnr.nextLine());
+            } catch (DateTimeParseException e) {
+                System.out.println("Invalid date format. Please use YYYY-MM-DD.");
+            }
+        }
+
+        double rentAmount = -1;
+        while (rentAmount < 0) {
+            System.out.print("Enter rent amount: ");
+            if (scnr.hasNextDouble()) {
+                rentAmount = scnr.nextDouble();
+                scnr.nextLine(); // Consume the newline left-over
+                if (rentAmount < 0) {
+                    System.out.println("Rent amount cannot be negative.");
+                }
+            } else {
+                System.out.println("Invalid input. Please enter a number.");
+                scnr.next(); // discard invalid input
+            }
+        }
+
+        PreparedStatement pstmt = null;
+
+        try (Connection conn = DatabaseUtil.getConnection()) {
+            // Assume lease_seq is the sequence created for auto-incrementing lease_id
+            String sql = "INSERT INTO Lease (lease_id, lease_start_date, lease_end_date, rent_amt, ten_id) VALUES (lease_seq.NEXTVAL, TO_DATE(?, 'YYYY-MM-DD'), TO_DATE(?, 'YYYY-MM-DD'), ?, ?)";
+            pstmt = conn.prepareStatement(sql);
+
+            pstmt.setString(1, startDate.toString());
+            pstmt.setString(2, endDate.toString());
+            pstmt.setDouble(3, rentAmount);
+            pstmt.setInt(4, tenantId);
+
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                System.out.println("Lease successfully created for Tenant ID: " + tenantId);
+            } else {
+                System.out.println("Failed to create lease.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error occurred while creating lease.");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+    
     private static void recordVisitData(Scanner scnr) {
         System.out.println("Record Visit Data");
     
@@ -64,44 +136,42 @@ public class PropertyManager {
         int age;
         double salary;
     
-        while (true) {
+        // Get visitor's name
+        do {
             System.out.print("Enter Visitor's Name: ");
             visitorName = scnr.nextLine();
-            if (!visitorName.isEmpty()) {
-                break;
+            if (visitorName.isEmpty()) {
+                System.out.println("Name cannot be empty. Please try again.");
             }
-            System.out.println("Name cannot be empty. Please try again.");
-        }
+        } while (visitorName.isEmpty());
     
-        while (true) {
+        // Get visitor's age
+        do {
             System.out.print("Enter Visitor's Age: ");
-            if (scnr.hasNextInt()) {
-                age = scnr.nextInt();
-                scnr.nextLine(); // Consume the newline left-over
-                if (age > 0) {
-                    break;
-                }
+            while (!scnr.hasNextInt()) {
+                System.out.println("Invalid input. Please enter a number.");
+                scnr.next(); // discard invalid input
+            }
+            age = scnr.nextInt();
+            scnr.nextLine(); // Consume the newline left-over
+            if (age <= 0) {
                 System.out.println("Age must be greater than 0. Please try again.");
-            } else {
-                System.out.println("Invalid input. Please enter a number.");
-                scnr.next(); // discard invalid input
             }
-        }
+        } while (age <= 0);
     
-        while (true) {
+        // Get visitor's salary
+        do {
             System.out.print("Enter Visitor's Salary: ");
-            if (scnr.hasNextDouble()) {
-                salary = scnr.nextDouble();
-                scnr.nextLine(); // Consume the newline left-over
-                if (salary >= 0) {
-                    break;
-                }
-                System.out.println("Salary cannot be negative. Please try again.");
-            } else {
+            while (!scnr.hasNextDouble()) {
                 System.out.println("Invalid input. Please enter a number.");
                 scnr.next(); // discard invalid input
             }
-        }
+            salary = scnr.nextDouble();
+            scnr.nextLine(); // Consume the newline left-over
+            if (salary < 0) {
+                System.out.println("Salary cannot be negative. Please try again.");
+            }
+        } while (salary < 0);
     
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -141,19 +211,129 @@ public class PropertyManager {
         }
     }
     
+    
 
-    public static void recordLeaseData() {
-        // Implementation code
+    public static void recordLeaseData(Scanner scnr) {
+        System.out.println("Record Lease Data");
+    
+        int tenantId;
+        String leaseStartDate;
+        String leaseEndDate;
+        double rentAmount;
+    
+        // Get Tenant ID
+        do {
+            System.out.print("Enter Tenant ID: ");
+            while (!scnr.hasNextInt()) {
+                System.out.println("Invalid input. Please enter a number.");
+                scnr.next(); // discard invalid input
+            }
+            tenantId = scnr.nextInt();
+            scnr.nextLine(); // Consume the newline left-over
+            if (!isTenantExists(tenantId)) {
+                System.out.println("Tenant ID does not exist. Please try again.");
+            }
+        } while (!isTenantExists(tenantId));
+    
+        // Get Lease Start Date
+        System.out.print("Enter Lease Start Date (YYYY-MM-DD): ");
+        leaseStartDate = scnr.nextLine();
+    
+        // Get Lease End Date
+        System.out.print("Enter Lease End Date (YYYY-MM-DD): ");
+        leaseEndDate = scnr.nextLine();
+    
+        // Get Rent Amount
+        do {
+            System.out.print("Enter Rent Amount: ");
+            while (!scnr.hasNextDouble()) {
+                System.out.println("Invalid input. Please enter a number.");
+                scnr.next(); // discard invalid input
+            }
+            rentAmount = scnr.nextDouble();
+            scnr.nextLine(); // Consume the newline left-over
+            if (rentAmount <= 0) {
+                System.out.println("Rent amount must be greater than 0. Please try again.");
+            }
+        } while (rentAmount <= 0);
+    
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+    
+        try {
+            // Get the database connection
+            conn = DatabaseUtil.getConnection();
+    
+            // SQL to insert new lease
+            String sql = "INSERT INTO Lease (lease_start_date, lease_end_date, rent_amt, ten_id) " +
+                         "VALUES (TO_DATE(?, 'YYYY-MM-DD'), TO_DATE(?, 'YYYY-MM-DD'), ?, ?)";
+    
+            // Create PreparedStatement
+            pstmt = conn.prepareStatement(sql);
+    
+            // Set parameters
+            pstmt.setString(1, leaseStartDate);
+            pstmt.setString(2, leaseEndDate);
+            pstmt.setDouble(3, rentAmount);
+            pstmt.setInt(4, tenantId);
+    
+            // Execute update
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                System.out.println("Lease data recorded successfully.");
+            } else {
+                System.out.println("Failed to record lease data.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Database error occurred.");
+            e.printStackTrace();
+        } finally {
+            // Close resources
+            try {
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
+    
+    // Helper method to check if a tenant exists
+    private static boolean isTenantExists(int tenantId) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        boolean exists = false;
+    
+        try {
+            conn = DatabaseUtil.getConnection();
+            String sql = "SELECT COUNT(*) FROM Tenant WHERE ten_id = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, tenantId);
+            rs = pstmt.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                exists = true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    
+        return exists;
+    }
+    
 
-    public static void addPersonToLease(Scanner scnr) {
-        System.out.println("Adding a new tenant to the lease...");
-
-        // Get tenant information
+    public static int addPersonToLease(Scanner scnr) {
+        System.out.println("Adding a new tenant...");
+    
         System.out.print("Enter tenant's name: ");
         String tenantName = scnr.nextLine();
-
-        // Input and validation for tenant's phone number
+    
         String phoneNumber;
         do {
             System.out.print("Enter tenant's phone number (format XXX-XXX-XXXX): ");
@@ -162,8 +342,7 @@ public class PropertyManager {
                 System.out.println("Invalid phone format. Please try again.");
             }
         } while (!DatabaseUtil.isValidPhoneNumber(phoneNumber));
-
-        // Input and validation for tenant's email address
+    
         String emailAddr;
         do {
             System.out.print("Enter tenant's email address: ");
@@ -172,41 +351,55 @@ public class PropertyManager {
                 System.out.println("Invalid email format. Please try again.");
             } else if (DatabaseUtil.emailExists(emailAddr)) {
                 System.out.println("Email already exists. Please enter a different email address.");
-                emailAddr = ""; // Reset emailAddr to continue the loop
+                emailAddr = "";
             }
         } while (!DatabaseUtil.isValidEmail(emailAddr) || DatabaseUtil.emailExists(emailAddr));
-
-        // Insert new tenant into the database
+    
         Connection conn = null;
         PreparedStatement pstmt = null;
-
+        ResultSet rs = null;
+        int tenantId = -1; // Initialize tenantId to -1
+    
         try {
             conn = DatabaseUtil.getConnection();
             String sql = "INSERT INTO Tenant (name, phone_num, email_addr) VALUES (?, ?, ?)";
             pstmt = conn.prepareStatement(sql);
-
+    
             pstmt.setString(1, tenantName);
             pstmt.setString(2, phoneNumber);
             pstmt.setString(3, emailAddr);
-
+    
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows > 0) {
-                System.out.println("Tenant successfully added to the lease.");
+                System.out.println("Tenant successfully added.");
+    
+                // Retrieve the tenantId of the newly added tenant
+                String selectSql = "SELECT ten_id FROM Tenant WHERE email_addr = ?";
+                pstmt = conn.prepareStatement(selectSql);
+                pstmt.setString(1, emailAddr);
+                rs = pstmt.executeQuery();
+    
+                if (rs.next()) {
+                    tenantId = rs.getInt("ten_id");
+                }
             } else {
-                System.out.println("Failed to add tenant to the lease.");
+                System.out.println("Failed to add tenant.");
             }
         } catch (SQLException e) {
-            System.out.println("Error occurred while adding tenant to the lease.");
+            System.out.println("Error occurred while adding tenant.");
             e.printStackTrace();
         } finally {
             try {
+                if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
-                if (conn != null) conn.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
         }
+    
+        return tenantId; // Return the retrieved tenantId
     }
+    
     
 
     private static void addPetToLease(Scanner scanner) {
