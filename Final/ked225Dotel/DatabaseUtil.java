@@ -100,6 +100,30 @@ public class DatabaseUtil {
         return date;
     }
 
+    // Method to check if the lease id exists 
+    public static boolean checkLeaseIdExists(int leaseId) {
+        Connection conn = DatabaseUtil.getConnection();
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            pstmt = conn.prepareStatement("SELECT COUNT(*) FROM Lease WHERE lease_id = ?");
+            pstmt.setInt(1, leaseId);
+            rs = pstmt.executeQuery();
+            return rs.next() && rs.getInt(1) > 0;
+        } catch (SQLException e) {
+            System.out.println("Database error occurred while checking lease ID.");
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
 
     
 }

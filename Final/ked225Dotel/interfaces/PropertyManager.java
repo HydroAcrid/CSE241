@@ -446,7 +446,7 @@ public class PropertyManager {
             if (scnr.hasNextInt()) {
                 leaseId = scnr.nextInt();
                 scnr.nextLine(); // consume the rest of the line
-                validLeaseId = checkLeaseIdExists(leaseId);
+                validLeaseId = DatabaseUtil.checkLeaseIdExists(leaseId);
                 if (!validLeaseId) {
                     System.out.println("Lease ID not found. Please try again.");
                 }
@@ -476,31 +476,6 @@ public class PropertyManager {
             e.printStackTrace();
         } finally {
             try {
-                if (pstmt != null) pstmt.close();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
-    
-    
-    
-    private static boolean checkLeaseIdExists(int leaseId) {
-        Connection conn = DatabaseUtil.getConnection();
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            pstmt = conn.prepareStatement("SELECT COUNT(*) FROM Lease WHERE lease_id = ?");
-            pstmt.setInt(1, leaseId);
-            rs = pstmt.executeQuery();
-            return rs.next() && rs.getInt(1) > 0;
-        } catch (SQLException e) {
-            System.out.println("Database error occurred while checking lease ID.");
-            e.printStackTrace();
-            return false;
-        } finally {
-            try {
-                if (rs != null) rs.close();
                 if (pstmt != null) pstmt.close();
             } catch (SQLException ex) {
                 ex.printStackTrace();

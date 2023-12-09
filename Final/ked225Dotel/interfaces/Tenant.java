@@ -158,9 +158,139 @@ public class Tenant {
         }
     }
 
+    // Method to make a rental payment
+    private static void makeRentalPayment(Scanner scnr, int tenantId) {
+        System.out.println("Making a rental payment...");
+
+        int leaseId = -1;
+        double rentAmount = -1;
+        double amount = 0;
+
+        // Loop until a valid lease ID is entered and the lease exists
+        while (true) {
+            System.out.print("Enter Lease ID: ");
+            if (scnr.hasNextInt()) {
+                leaseId = scnr.nextInt();
+                scnr.nextLine(); // Consume the newline left-over
+
+                if (DatabaseUtil.checkLeaseIdExists(leaseId)) {
+                    rentAmount = getRentAmount(leaseId);
+                    if (rentAmount <= 0) {
+                        System.out.println("Invalid Lease ID or no rent amount found. Please try again.");
+                        continue;
+                    }
+                    break; // Break the loop if a valid lease ID is entered
+                } else {
+                    System.out.println("No such lease found. Please try again.");
+                }
+            } else {
+                System.out.println("Invalid input. Please enter a numeric lease ID.");
+                scnr.next(); // discard non-integer input
+            }
+        }
+
+        // Loop until a valid payment amount is entered
+        while (true) {
+            System.out.print("Enter payment amount: ");
+            if (scnr.hasNextDouble()) {
+                amount = scnr.nextDouble();
+                scnr.nextLine(); // Consume the newline left-over
+
+                if (amount <= 0 || amount > rentAmount) {
+                    System.out.println("The payment amount must be greater than $0 and not more than the rent amount of $" + rentAmount + ". Please try again.");
+                } else {
+                    break; // Break the loop if a valid payment amount is entered
+                }
+            } else {
+                System.out.println("Invalid input. Please enter a number.");
+                scnr.next(); // discard non-double input
+            }
+        }
+
+        // Insert payment into the database
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            conn = DatabaseUtil.getConnection();
+
+            // Start a transaction
+            conn.setAutoCommit(false);
+
+            String sql = "INSERT INTO Payment (pay_id, pay_date, amount, lease_id) " +
+                        "VALUES (payment_seq.NEXTVAL, CURRENT_DATE, ?, ?)";
+
+            pstmt = conn.prepareStatement(sql);
+
+            // Set parameters for the payment
+            pstmt.setDouble(1, amount);
+            pstmt.setInt(2, leaseId);
+
+            // Execute the payment insert
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows == 1) {
+                // Commit the transaction if the insert was successful
+                conn.commit();
+                System.out.println("Payment was successful.");
+            } else {
+                // Rollback the transaction if the insert failed
+                conn.rollback();
+                System.out.println("Payment failed to process.");
+            }
+        } catch (SQLException e) {
+            try {
+                if (conn != null) conn.rollback();
+            } 
+            catch (SQLException se) {
+                se.printStackTrace();
+            }
+            System.out.println("Database error occurred while processing payment.");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.setAutoCommit(true); // Reset to default
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    // Helper method to get the rent amount for a lease
+    private static double getRentAmount(int leaseId) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        double rentAmount = -1;
+
+        try {
+            conn = DatabaseUtil.getConnection();
+            String sql = "SELECT rent_amt FROM Lease WHERE lease_id = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, leaseId);
+
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                rentAmount = rs.getDouble("rent_amt");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return rentAmount;
+    }
+
+
     //Method to make a rental payment
     //THIS NEEDS TO BE UPDATEDDDDDD 
-    private static void makeRentalPayment(Scanner scnr, int tenantId) {
+    private static void makeRentalPaymentOLD(Scanner scnr, int tenantId) {
         System.out.println("Making a rental payment...");
     
         // Ask for the lease ID and the amount to pay

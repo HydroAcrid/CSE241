@@ -4,7 +4,6 @@
 - Welcome to my database project! In here you can find assumptions, a walk through of what I want you to input and other useful resources 
 
 # Assumptions
-
 ## Tenant 
 - Any tenant can pay off the rent for their apartment. Rent is not divided amongst them, so as long as they're on the lease they see and can pay the entire bill.
 - Because emails must be unique in my database, tenant  authentication is based on their email address.
@@ -23,6 +22,9 @@
 - Use this email when asked: katie.holmes@gmail.com (You can use any other email in my database this is just an easy one)
 - To figure out what lease id is associated with the tenat you selected, login with their email and then press: "1. Check Payment Status"
 - Besides this, there is no knowledge needed from the database to fulfill the commands (Like before, lease_id is from 1 to 25).
+
+# Triggers, Sequences, and Data 
+- You can see all of the triggers, sequences, and data I inputted into the system in the "DATA.md" file
 
 # How to run without creating a jar (MAC/Unix)
 1. Make you sure you are in the "Final" Directory 
