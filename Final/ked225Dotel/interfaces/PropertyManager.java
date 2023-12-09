@@ -421,9 +421,10 @@ public class PropertyManager {
     
         LocalDate moveOutDate = DatabaseUtil.promptForDate(scnr, "Enter new move-out date (YYYY-MM-DD): ");
     
-        try (Connection conn = DatabaseUtil.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement("UPDATE Lease SET lease_end_date = ? WHERE lease_id = ?")) {
-    
+        Connection conn = DatabaseUtil.getConnection();
+        PreparedStatement pstmt = null;
+        try {
+            pstmt = conn.prepareStatement("UPDATE Lease SET lease_end_date = ? WHERE lease_id = ?");
             pstmt.setDate(1, java.sql.Date.valueOf(moveOutDate));
             pstmt.setInt(2, leaseId);
     
@@ -436,24 +437,39 @@ public class PropertyManager {
         } catch (SQLException e) {
             System.out.println("Database error occurred while setting move-out date.");
             e.printStackTrace();
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
     
+    
     private static boolean checkLeaseIdExists(int leaseId) {
-        try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement("SELECT COUNT(*) FROM Lease WHERE lease_id = ?")) {
+        Connection conn = DatabaseUtil.getConnection();
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            pstmt = conn.prepareStatement("SELECT COUNT(*) FROM Lease WHERE lease_id = ?");
             pstmt.setInt(1, leaseId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next() && rs.getInt(1) > 0) {
-                    return true;
-                }
-            }
+            rs = pstmt.executeQuery();
+            return rs.next() && rs.getInt(1) > 0;
         } catch (SQLException e) {
             System.out.println("Database error occurred while checking lease ID.");
             e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
-        return false;
     }
+    
     
 
 
