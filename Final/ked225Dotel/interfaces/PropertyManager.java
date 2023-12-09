@@ -401,32 +401,60 @@ public class PropertyManager {
         }
     }
 
-    // Method to set a move-out date for a particular lease
     public static void setMoveOutDate(Scanner scnr) {
-        System.out.print("Enter Lease ID for which you want to set a move-out date: ");
-        int leaseId = scnr.nextInt();
-        scnr.nextLine(); // consume the rest of the line
-
-        // Use promptForDate to ensure the user enters a valid date
+        int leaseId = -1;
+        boolean validLeaseId = false;
+        while (!validLeaseId) {
+            System.out.print("Enter Lease ID for which you want to set a move-out date: ");
+            if (scnr.hasNextInt()) {
+                leaseId = scnr.nextInt();
+                scnr.nextLine(); // consume the rest of the line
+                validLeaseId = checkLeaseIdExists(leaseId);
+                if (!validLeaseId) {
+                    System.out.println("Lease ID not found. Please try again.");
+                }
+            } else {
+                System.out.println("Invalid input. Please enter a valid Lease ID.");
+                scnr.next(); // discard invalid input
+            }
+        }
+    
         LocalDate moveOutDate = DatabaseUtil.promptForDate(scnr, "Enter new move-out date (YYYY-MM-DD): ");
-
+    
         try (Connection conn = DatabaseUtil.getConnection();
             PreparedStatement pstmt = conn.prepareStatement("UPDATE Lease SET lease_end_date = ? WHERE lease_id = ?")) {
-
+    
             pstmt.setDate(1, java.sql.Date.valueOf(moveOutDate));
             pstmt.setInt(2, leaseId);
-
+    
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows > 0) {
                 System.out.println("Move-out date set successfully for Lease ID: " + leaseId);
             } else {
-                System.out.println("Failed to set move-out date. Please check Lease ID and try again.");
+                System.out.println("Failed to set move-out date.");
             }
         } catch (SQLException e) {
             System.out.println("Database error occurred while setting move-out date.");
             e.printStackTrace();
         }
     }
+    
+    private static boolean checkLeaseIdExists(int leaseId) {
+        try (Connection conn = DatabaseUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("SELECT COUNT(*) FROM Lease WHERE lease_id = ?")) {
+            pstmt.setInt(1, leaseId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Database error occurred while checking lease ID.");
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
 
 
 }
