@@ -384,12 +384,16 @@ public class PropertyManager {
 
     
 
-    // Method to record move-out dates for all leases
     public static void recordMoveOutDate() {
-        try (Connection conn = DatabaseUtil.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement("SELECT lease_id, lease_end_date FROM Lease");
-            ResultSet rs = pstmt.executeQuery()) {
-
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+    
+        try {
+            conn = DatabaseUtil.getConnection();
+            pstmt = conn.prepareStatement("SELECT lease_id, lease_end_date FROM Lease");
+            rs = pstmt.executeQuery();
+    
             while (rs.next()) {
                 int leaseId = rs.getInt("lease_id");
                 Date moveOutDate = rs.getDate("lease_end_date");
@@ -398,8 +402,17 @@ public class PropertyManager {
         } catch (SQLException e) {
             System.out.println("Database error occurred while retrieving move-out dates.");
             e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                // Don't close conn here if it's shared across the application
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
+    
 
     public static void setMoveOutDate(Scanner scnr) {
         int leaseId = -1;
@@ -447,6 +460,7 @@ public class PropertyManager {
     }
     
     
+    
     private static boolean checkLeaseIdExists(int leaseId) {
         Connection conn = DatabaseUtil.getConnection();
         PreparedStatement pstmt = null;
@@ -469,6 +483,7 @@ public class PropertyManager {
             }
         }
     }
+    
     
     
 
