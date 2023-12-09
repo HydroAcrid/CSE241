@@ -63,13 +63,13 @@ public class PropertyManager {
                     setMoveOutDate(scnr);
                     break;
                 case 7:
-                    setMoveOutDate(scnr);
+                    viewManagers();
                     break;
                 case 8:
-                    setMoveOutDate(scnr);
+                    viewPropertiesAndAmenities();
                     break;
                 case 9:
-                    setMoveOutDate(scnr);
+                    viewApartmentsAndTenants();
                     break;
                 case 10:
                     exitMenu = true;
@@ -508,8 +508,9 @@ public class PropertyManager {
         }
     }
 
+    // Method to check the managers and their properties 
     private static void viewManagers() {
-        System.out.println("Viewing all managers and their properties...");
+        System.out.println("Viewing all managers and their respective properties...");
     
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -519,8 +520,8 @@ public class PropertyManager {
             // Get database connection
             conn = DatabaseUtil.getConnection();
     
-            // Query to select managers and their properties
-            String sql = "SELECT m.man_name, p.prop_id, p.manager FROM Manager m JOIN Property p ON m.manager_id = p.manager";
+            // Query to select properties and their managers
+            String sql = "SELECT prop_id, manager FROM Property";
     
             // Create PreparedStatement
             pstmt = conn.prepareStatement(sql);
@@ -530,14 +531,13 @@ public class PropertyManager {
     
             // Process and display results
             while (rs.next()) {
-                String managerName = rs.getString("man_name");
                 int propertyId = rs.getInt("prop_id");
-                String propertyName = rs.getString("manager"); // Assuming 'manager' is the property name
+                String managerName = rs.getString("manager");
     
-                System.out.println("Manager: " + managerName + ", Property ID: " + propertyId + ", Property Name: " + propertyName);
+                System.out.println("Property ID: " + propertyId + ", Manager: " + managerName);
             }
         } catch (SQLException e) {
-            System.out.println("Database error occurred while retrieving manager and property information.");
+            System.out.println("Database error occurred while retrieving property and manager information.");
             e.printStackTrace();
         } finally {
             // Close resources
@@ -549,6 +549,106 @@ public class PropertyManager {
             }
         }
     }
+
+    // Method to check properties and amenities 
+    private static void viewPropertiesAndAmenities() {
+        System.out.println("Viewing all properties, their addresses, and amenities...");
+    
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+    
+        try {
+            // Get database connection
+            conn = DatabaseUtil.getConnection();
+    
+            // Query to select property details including address and amenities
+            String sql = "SELECT p.prop_id, a.state, a.town, a.street, a.zip_code "
+                       + "FROM Property p "
+                       + "JOIN Address a ON p.addr_id = a.addr_id";
+    
+            // Create PreparedStatement
+            pstmt = conn.prepareStatement(sql);
+    
+            // Execute query
+            rs = pstmt.executeQuery();
+    
+            // Process and display results
+            while (rs.next()) {
+                int propertyId = rs.getInt("prop_id");
+                String state = rs.getString("state");
+                String town = rs.getString("town");
+                String street = rs.getString("street");
+                String zipCode = rs.getString("zip_code");
+    
+                System.out.println("Property ID: " + propertyId + ", Address: " + street + ", " + town + ", " + state + ", " + zipCode);
+                // You might want to add code here to fetch and display amenities if needed
+            }
+        } catch (SQLException e) {
+            System.out.println("Database error occurred while retrieving property and address information.");
+            e.printStackTrace();
+        } finally {
+            // Close resources
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    private static void viewApartmentsAndTenants() {
+        System.out.println("Viewing all apartments and their tenants...");
+    
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+    
+        try {
+            // Get database connection
+            conn = DatabaseUtil.getConnection();
+    
+            // SQL query to join Apartment, Lease, and Tenant tables
+            String sql = "SELECT a.apt_id, GROUP_CONCAT(t.name ORDER BY t.name SEPARATOR ', ') AS tenants "
+                       + "FROM Apartment a "
+                       + "JOIN Lease l ON a.apt_id = l.apt_id "
+                       + "JOIN Tenant t ON l.ten_id = t.ten_id "
+                       + "GROUP BY a.apt_id "
+                       + "ORDER BY a.apt_id";
+    
+            // Create PreparedStatement
+            pstmt = conn.prepareStatement(sql);
+    
+            // Execute query
+            rs = pstmt.executeQuery();
+    
+            // Process and display results
+            while (rs.next()) {
+                int aptId = rs.getInt("apt_id");
+                String tenants = rs.getString("tenants");
+    
+                System.out.println("Apartment ID: " + aptId + ", Tenants: " + tenants);
+            }
+        } catch (SQLException e) {
+            System.out.println("Database error occurred while retrieving apartments and tenants.");
+            e.printStackTrace();
+        } finally {
+            // Close resources
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+    
+
+
+    
+    
+    
     
     
     
