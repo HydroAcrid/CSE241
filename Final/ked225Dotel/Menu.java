@@ -24,6 +24,7 @@ public class Menu {
                         // Instantiate and use the Property Manager interface
                         System.out.println("Property Manager Interface selected.");
                         valid = true;
+                        PropertyManager.propertyManagerMenu(scnr);
                         break;
                     case 2:
                         // Instantiate and use the Tenant interface
